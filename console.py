@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Console Module """
+""" Defines the HBNB Console Module """
 import cmd
 import sys
 from models.base_model import BaseModel
@@ -12,7 +12,7 @@ from models.amenity import Amenity
 from models.review import Review
 
 
-class HBNBCommand(cmd.Cmd):
+ HBNBCommand(cmd.Cmd):
     """ Contains the functionality for the HBNB console"""
 
     # determines prompt for interactive/non-interactive modes
