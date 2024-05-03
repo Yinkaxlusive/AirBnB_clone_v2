@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
-# Set up server file system for deployment
+# This script sets up the web servers for the deployment of web_static
 
-# install nginx
-sudo apt-get -y update
-sudo apt-get -y install nginx
-sudo service nginx start
+# Install Nginx if not already installed
+if ! command -v nginx &> /dev/null; then
+    sudo apt-get update
+    sudo apt-get install -y nginx
+fi
 
-# configure file system
-sudo mkdir -p /data/web_static/shared/
-sudo mkdir -p /data/web_static/releases/test/
-echo "Holberton School" | sudo tee /data/web_static/releases/test/index.html > /dev/null
-sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
+# Create necessary directories if they don't exist
+sudo mkdir -p /data/web_static/releases/test /data/web_static/shared
 
-# set permissions
+# Create a fake HTML file
+echo "<html><head></head><body>Holberton School</body></html>" | sudo tee /data/web_static/releases/test/index.html > /dev/null
+
+# Create symbolic link /data/web_static/current
+sudo ln -sf /data/web_static/releases/test /data/web_static/current
+
+# Give ownership of /data/ to ubuntu user and group recursively
 sudo chown -R ubuntu:ubuntu /data/
 
-# configure nginx
-sudo sed -i '44i \\n\tlocation /hbnb_static {\n\t\talias /data/web_static/current/;\n\t}' /etc/nginx/sites-available/default
+# Update Nginx configuration
+config="location /hbnb_static/ {\n\talias /data/web_static/current/;\n}"
+sudo sed -i "/# pass the PHP/,/#}/c\\$config" /etc/nginx/sites-available/default
 
-# restart web server
-sudo service nginx restart
+# Restart Nginx
+sudo systemctl restart nginx
