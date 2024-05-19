@@ -1,25 +1,31 @@
 #!/usr/bin/python3
-"""Importing Flask to run the web app"""
-from flask import Flask, render_template
+"""Start web application with two routings
+"""
+
 from models import storage
 from models.state import State
-
-
+from flask import Flask, render_template
 app = Flask(__name__)
 
 
-@app.route("/states_list", strict_slashes=False)
-def display_states():
-    """Render state_list html page to display States created"""
-    states = storage.all()
-    return render_template('7-states_list.html', states=states)
+@app.route('/states_list')
+def states_list():
+    """Render template with states
+    """
+    path = '7-states_list.html'
+    states = storage.all(State)
+    # sort State object alphabetically by name
+    sorted_states = sorted(states.values(), key=lambda state: state.name)
+    return render_template(path, sorted_states=sorted_states)
 
 
 @app.teardown_appcontext
-def teardown(self):
-    """Method to remove current SQLAlchemy Session"""
+def app_teardown(arg=None):
+    """Clean-up session
+    """
     storage.close()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    app.url_map.strict_slashes = False
     app.run(host='0.0.0.0', port=5000)
